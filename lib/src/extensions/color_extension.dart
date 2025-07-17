@@ -6,10 +6,10 @@ extension ColorExtension on Color {
     assert(1 <= percent && percent <= 100);
     final value = 1 - percent / 100;
     return Color.fromARGB(
-      _floatToInt8(alpha),
-      (_floatToInt8(red) * value).round(),
-      (_floatToInt8(green) * value).round(),
-      (_floatToInt8(blue) * value).round(),
+      _floatToInt8(alpha.toDouble()),
+      (_floatToInt8(red.toDouble()) * value).round(),
+      (_floatToInt8(green.toDouble()) * value).round(),
+      (_floatToInt8(blue.toDouble()) * value).round(),
     );
   }
 
