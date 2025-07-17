@@ -52,7 +52,7 @@ class BarChartData extends AxisChartData with EquatableMixin {
   })  : barGroups = barGroups ?? const [],
         groupsSpace = groupsSpace ?? 16,
         alignment = alignment ?? BarChartAlignment.spaceEvenly,
-        barTouchData = barTouchData ?? const BarTouchData(),
+        barTouchData = barTouchData ?? BarTouchData(),
         super(
           titlesData: titlesData ??
               const FlTitlesData(
@@ -624,7 +624,7 @@ class BarTouchData extends FlTouchData<BarTouchResponse> with EquatableMixin {
   /// If you need to have a distance threshold for handling touches, use [touchExtraThreshold].
   /// If [allowTouchBarBackDraw] sets to true, touches will work
   /// on [BarChartRodData.backDrawRodData] too (by default it only works on the main rods).
-  const BarTouchData({
+  BarTouchData({
     bool? enabled,
     BaseTouchCallback<BarTouchResponse>? touchCallback,
     MouseCursorResolver<BarTouchResponse>? mouseCursorResolver,
@@ -633,7 +633,7 @@ class BarTouchData extends FlTouchData<BarTouchResponse> with EquatableMixin {
     EdgeInsets? touchExtraThreshold,
     bool? allowTouchBarBackDraw,
     bool? handleBuiltInTouches,
-  })  : touchTooltipData = touchTooltipData ?? const BarTouchTooltipData(),
+  })  : touchTooltipData = touchTooltipData ?? BarTouchTooltipData(),
         touchExtraThreshold = touchExtraThreshold ?? const EdgeInsets.all(4),
         allowTouchBarBackDraw = allowTouchBarBackDraw ?? false,
         handleBuiltInTouches = handleBuiltInTouches ?? true,
@@ -713,7 +713,10 @@ class BarTouchTooltipData with EquatableMixin {
   /// [BarChart] shows a tooltip popup on top of rods automatically when touch happens,
   /// otherwise you can show it manually using [BarChartGroupData.showingTooltipIndicators].
   /// Tooltip shows on top of rods, with [getTooltipColor] as a background color.
-  /// You can set the corner radius using [tooltipBorderRadius],
+  /// You can set the corner radius using [tooltipRoundedRadius],
+  /// or if you need a custom border, you can use [tooltipBorderRadius].
+  /// Note that if both [tooltipRoundedRadius] and [tooltipBorderRadius] are set,
+  /// the value from [tooltipBorderRadius] will be used.
   /// If you want to have a padding inside the tooltip, fill [tooltipPadding],
   /// or If you want to have a bottom margin, set [tooltipMargin].
   /// Content of the tooltip will provide using [getTooltipItem] callback, you can override it
@@ -722,7 +725,8 @@ class BarTouchTooltipData with EquatableMixin {
   /// Sometimes, [BarChart] shows the tooltip outside of the chart,
   /// you can set [fitInsideHorizontally] true to force it to shift inside the chart horizontally,
   /// also you can set [fitInsideVertically] true to force it to shift inside the chart vertically.
-  const BarTouchTooltipData({
+  BarTouchTooltipData({
+    double? tooltipRoundedRadius,
     BorderRadius? tooltipBorderRadius,
     EdgeInsets? tooltipPadding,
     double? tooltipMargin,
@@ -736,7 +740,12 @@ class BarTouchTooltipData with EquatableMixin {
     TooltipDirection? direction,
     double? rotateAngle,
     BorderSide? tooltipBorder,
-  })  : _tooltipBorderRadius = tooltipBorderRadius,
+  })  :
+        // TODO(imaNNeo): We should remove this property in the next major version
+        // ignore: deprecated_member_use_from_same_package
+        tooltipRoundedRadius = tooltipRoundedRadius ?? 4,
+        tooltipBorderRadius = tooltipBorderRadius ??
+            BorderRadius.circular(tooltipRoundedRadius ?? 4),
         tooltipPadding = tooltipPadding ??
             const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         tooltipMargin = tooltipMargin ?? 16,
@@ -754,11 +763,11 @@ class BarTouchTooltipData with EquatableMixin {
         super();
 
   /// Sets a rounded radius for the tooltip.
-  final BorderRadius? _tooltipBorderRadius;
+  @Deprecated('use tooltipBorderRadius instead')
+  final double tooltipRoundedRadius;
 
-  /// Sets a rounded radius for the tooltip.
-  BorderRadius get tooltipBorderRadius =>
-      _tooltipBorderRadius ?? BorderRadius.circular(4);
+  /// Sets a border radius for the tooltip.
+  final BorderRadius tooltipBorderRadius;
 
   /// Applies a padding for showing contents inside the tooltip.
   final EdgeInsets tooltipPadding;
@@ -799,7 +808,10 @@ class BarTouchTooltipData with EquatableMixin {
   /// Used for equality check, see [EquatableMixin].
   @override
   List<Object?> get props => [
-        _tooltipBorderRadius,
+        // TODO(imaNNeo): We should remove this property in the next major version
+        // ignore: deprecated_member_use_from_same_package
+        tooltipRoundedRadius,
+        tooltipBorderRadius,
         tooltipPadding,
         tooltipMargin,
         tooltipHorizontalAlignment,
@@ -897,14 +909,10 @@ Color defaultBarTooltipColor(BarChartGroupData group) =>
 ///
 /// You can override [BarTouchData.touchCallback] to handle touch events,
 /// it gives you a [BarTouchResponse] and you can do whatever you want.
-class BarTouchResponse extends AxisBaseTouchResponse {
+class BarTouchResponse extends BaseTouchResponse {
   /// If touch happens, [BarChart] processes it internally and passes out a BarTouchedSpot
   /// that contains a [spot], it gives you information about the touched spot.
-  BarTouchResponse({
-    required super.touchLocation,
-    required super.touchChartCoordinate,
-    required this.spot,
-  });
+  BarTouchResponse(this.spot) : super();
 
   /// Gives information about the touched spot
   final BarTouchedSpot? spot;
@@ -912,14 +920,10 @@ class BarTouchResponse extends AxisBaseTouchResponse {
   /// Copies current [BarTouchResponse] to a new [BarTouchResponse],
   /// and replaces provided values.
   BarTouchResponse copyWith({
-    Offset? touchLocation,
-    Offset? touchChartCoordinate,
     BarTouchedSpot? spot,
   }) =>
       BarTouchResponse(
-        touchLocation: touchLocation ?? this.touchLocation,
-        touchChartCoordinate: touchChartCoordinate ?? this.touchChartCoordinate,
-        spot: spot ?? this.spot,
+        spot ?? this.spot,
       );
 }
 

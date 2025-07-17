@@ -182,12 +182,7 @@ typedef MouseCursorResolver<R extends BaseTouchResponse> = MouseCursor Function(
 
 /// This class holds the touch response details of charts.
 abstract class BaseTouchResponse {
-  BaseTouchResponse({
-    required this.touchLocation,
-  });
-
-  /// The location of the touch in pixels on the screen.
-  final Offset touchLocation;
+  const BaseTouchResponse();
 }
 
 /// Controls an element horizontal alignment to given point.

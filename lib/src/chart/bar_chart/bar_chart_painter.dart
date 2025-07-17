@@ -109,8 +109,8 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
       canvasWrapper.restore();
     }
 
-    for (var i = 0; i < data.barGroups.length; i++) {
-      final barGroup = data.barGroups[i];
+    for (var i = 0; i < targetData.barGroups.length; i++) {
+      final barGroup = targetData.barGroups[i];
       for (var j = 0; j < barGroup.barRods.length; j++) {
         if (!barGroup.showingTooltipIndicators.contains(j)) {
           continue;
@@ -336,7 +336,7 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
           }
 
           // draw border stroke
-          if (borderSide.width > 0 && borderSide.color.a > 0) {
+          if (borderSide.width > 0 && borderSide.color.alpha > 0) {
             _barStrokePaint
               ..color = borderSide.color
               ..strokeWidth = borderSide.width;
@@ -633,7 +633,7 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
     Size drawSize,
     PaintHolder<BarChartData> holder,
   ) {
-    if (stackItem.borderSide.width == 0 || stackItem.borderSide.color.a == 0) {
+    if (stackItem.borderSide.width == 0 || stackItem.borderSide.color.alpha == 0) {
       return;
     }
     RRect strokeBarRect;

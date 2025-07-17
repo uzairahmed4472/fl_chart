@@ -319,7 +319,7 @@ class ScatterTouchData extends FlTouchData<ScatterTouchResponse>
     ScatterTouchTooltipData? touchTooltipData,
     double? touchSpotThreshold,
     bool? handleBuiltInTouches,
-  })  : touchTooltipData = touchTooltipData ?? const ScatterTouchTooltipData(),
+  })  : touchTooltipData = touchTooltipData ?? ScatterTouchTooltipData(),
         touchSpotThreshold = touchSpotThreshold ?? 0,
         handleBuiltInTouches = handleBuiltInTouches ?? true,
         super(
@@ -380,32 +380,22 @@ typedef ScatterTouchCallback = void Function(ScatterTouchResponse);
 ///
 /// You can override [ScatterTouchData.touchCallback] to handle touch events,
 /// it gives you a [ScatterTouchResponse] and you can do whatever you want.
-class ScatterTouchResponse extends AxisBaseTouchResponse {
+class ScatterTouchResponse extends BaseTouchResponse {
   /// If touch happens, [ScatterChart] processes it internally and
   /// passes out a [ScatterTouchResponse], it gives you information about the touched spot.
   ///
   /// [touchedSpot] tells you
   /// in which spot (of [ScatterChartData.scatterSpots]) touch happened.
-  ScatterTouchResponse({
-    required super.touchLocation,
-    required super.touchChartCoordinate,
-    required this.touchedSpot,
-  });
-
+  ScatterTouchResponse(this.touchedSpot) : super();
   final ScatterTouchedSpot? touchedSpot;
 
   /// Copies current [ScatterTouchResponse] to a new [ScatterTouchResponse],
   /// and replaces provided values.
   ScatterTouchResponse copyWith({
-    Offset? touchLocation,
-    Offset? touchChartCoordinate,
     ScatterTouchedSpot? touchedSpot,
-  }) =>
-      ScatterTouchResponse(
-        touchLocation: touchLocation ?? this.touchLocation,
-        touchChartCoordinate: touchChartCoordinate ?? this.touchChartCoordinate,
-        touchedSpot: touchedSpot ?? this.touchedSpot,
-      );
+  }) {
+    return ScatterTouchResponse(touchedSpot ?? this.touchedSpot);
+  }
 }
 
 /// Holds the touched spot data
@@ -442,7 +432,10 @@ class ScatterTouchTooltipData with EquatableMixin {
   /// [ScatterChart] shows a tooltip popup on top of spots automatically when touch happens,
   /// otherwise you can show it manually using [ScatterChartData.showingTooltipIndicators].
   /// Tooltip shows on top of rods, with [getTooltipColor] as a background color.
-  /// You can set the corner radius using [tooltipBorderRadius],
+  /// You can set the corner radius using [tooltipRoundedRadius],
+  /// or if you need a custom border, you can use [tooltipBorderRadius].
+  /// Note that if both [tooltipRoundedRadius] and [tooltipBorderRadius] are set,
+  /// the value from [tooltipBorderRadius] will be used.
   /// If you want to have a padding inside the tooltip, fill [tooltipPadding].
   /// Content of the tooltip will provide using [getTooltipItems] callback, you can override it
   /// and pass your custom data to show in the tooltip.
@@ -450,7 +443,8 @@ class ScatterTouchTooltipData with EquatableMixin {
   /// Sometimes, [ScatterChart] shows the tooltip outside of the chart,
   /// you can set [fitInsideHorizontally] true to force it to shift inside the chart horizontally,
   /// also you can set [fitInsideVertically] true to force it to shift inside the chart vertically.
-  const ScatterTouchTooltipData({
+  ScatterTouchTooltipData({
+    double? tooltipRoundedRadius,
     BorderRadius? tooltipBorderRadius,
     EdgeInsets? tooltipPadding,
     FLHorizontalAlignment? tooltipHorizontalAlignment,
@@ -462,7 +456,12 @@ class ScatterTouchTooltipData with EquatableMixin {
     double? rotateAngle,
     BorderSide? tooltipBorder,
     GetScatterTooltipColor? getTooltipColor,
-  })  : _tooltipBorderRadius = tooltipBorderRadius,
+  })  :
+        // TODO(imaNNeo): We should remove this property in the next major version
+        // ignore: deprecated_member_use_from_same_package
+        tooltipRoundedRadius = tooltipRoundedRadius ?? 4,
+        tooltipBorderRadius = tooltipBorderRadius ??
+            BorderRadius.circular(tooltipRoundedRadius ?? 4),
         tooltipPadding = tooltipPadding ??
             const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         tooltipHorizontalAlignment =
@@ -478,11 +477,11 @@ class ScatterTouchTooltipData with EquatableMixin {
         super();
 
   /// Sets a rounded radius for the tooltip.
-  final BorderRadius? _tooltipBorderRadius;
+  @Deprecated('use tooltipBorderRadius instead')
+  final double tooltipRoundedRadius;
 
-  /// Sets a rounded radius for the tooltip.
-  BorderRadius get tooltipBorderRadius =>
-      _tooltipBorderRadius ?? BorderRadius.circular(4);
+  /// Sets a border radius for the tooltip.
+  final BorderRadius tooltipBorderRadius;
 
   /// Applies a padding for showing contents inside the tooltip.
   final EdgeInsets tooltipPadding;
@@ -517,7 +516,10 @@ class ScatterTouchTooltipData with EquatableMixin {
   /// Used for equality check, see [EquatableMixin].
   @override
   List<Object?> get props => [
-        _tooltipBorderRadius,
+        // TODO(imaNNeo): We should remove this property in the next major version
+        // ignore: deprecated_member_use_from_same_package
+        tooltipRoundedRadius,
+        tooltipBorderRadius,
         tooltipPadding,
         tooltipHorizontalAlignment,
         tooltipHorizontalOffset,
@@ -533,6 +535,7 @@ class ScatterTouchTooltipData with EquatableMixin {
   /// Copies current [ScatterTouchTooltipData] to a new [ScatterTouchTooltipData],
   /// and replaces provided values.
   ScatterTouchTooltipData copyWith({
+    double? tooltipRoundedRadius,
     EdgeInsets? tooltipPadding,
     FLHorizontalAlignment? tooltipHorizontalAlignment,
     double? tooltipHorizontalOffset,
@@ -545,6 +548,9 @@ class ScatterTouchTooltipData with EquatableMixin {
     GetScatterTooltipColor? getTooltipColor,
   }) =>
       ScatterTouchTooltipData(
+        // TODO(imaNNeo): We should remove this property in the next major version
+        // ignore: deprecated_member_use_from_same_package
+        tooltipRoundedRadius: tooltipRoundedRadius ?? this.tooltipRoundedRadius,
         tooltipPadding: tooltipPadding ?? this.tooltipPadding,
         tooltipHorizontalAlignment:
             tooltipHorizontalAlignment ?? this.tooltipHorizontalAlignment,

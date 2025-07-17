@@ -122,19 +122,11 @@ class RenderBarChart extends RenderBaseChart<BarTouchResponse> {
 
   @override
   BarTouchResponse getResponseAtLocation(Offset localPosition) {
-    final chartSize = mockTestSize ?? size;
-    return BarTouchResponse(
-      touchLocation: localPosition,
-      touchChartCoordinate: painter.getChartCoordinateFromPixel(
-        localPosition,
-        chartSize,
-        paintHolder,
-      ),
-      spot: painter.handleTouch(
-        localPosition,
-        chartSize,
-        paintHolder,
-      ),
+    final touchedSpot = painter.handleTouch(
+      localPosition,
+      mockTestSize ?? size,
+      paintHolder,
     );
+    return BarTouchResponse(touchedSpot);
   }
 }

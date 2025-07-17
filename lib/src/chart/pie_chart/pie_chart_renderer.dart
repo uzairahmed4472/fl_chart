@@ -161,14 +161,12 @@ class RenderPieChart extends RenderBaseChart<PieTouchResponse>
 
   @override
   PieTouchResponse getResponseAtLocation(Offset localPosition) {
-    return PieTouchResponse(
-      touchLocation: localPosition,
-      touchedSection: painter.handleTouch(
-        localPosition,
-        mockTestSize ?? size,
-        paintHolder,
-      ),
+    final pieSection = painter.handleTouch(
+      localPosition,
+      mockTestSize ?? size,
+      paintHolder,
     );
+    return PieTouchResponse(pieSection);
   }
 
   @override

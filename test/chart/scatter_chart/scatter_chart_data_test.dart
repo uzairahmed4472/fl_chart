@@ -389,20 +389,20 @@ void main() {
 
     test('ScatterTouchData equality test', () {
       final sample = ScatterTouchData(
-        touchTooltipData: const ScatterTouchTooltipData(
+        touchTooltipData: ScatterTouchTooltipData(
           maxContentWidth: 2,
           getTooltipColor: scatterChartGetTooltipRedColor,
-          tooltipPadding: EdgeInsets.all(11),
+          tooltipPadding: const EdgeInsets.all(11),
         ),
         handleBuiltInTouches: false,
         touchSpotThreshold: 23,
         enabled: false,
       );
       final sampleClone = ScatterTouchData(
-        touchTooltipData: const ScatterTouchTooltipData(
+        touchTooltipData: ScatterTouchTooltipData(
           maxContentWidth: 2,
           getTooltipColor: scatterChartGetTooltipRedColor,
-          tooltipPadding: EdgeInsets.all(11),
+          tooltipPadding: const EdgeInsets.all(11),
         ),
         handleBuiltInTouches: false,
         touchSpotThreshold: 23,

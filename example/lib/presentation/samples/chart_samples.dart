@@ -1,4 +1,3 @@
-import 'package:fl_chart_app/presentation/samples/candlestick/candlestick_chart_sample1.dart';
 import 'package:fl_chart_app/util/app_helper.dart';
 
 import 'bar/bar_chart_sample1.dart';
@@ -69,8 +68,5 @@ class ChartSamples {
     ChartType.radar: [
       RadarChartSample(1, (context) => RadarChartSample1()),
     ],
-    ChartType.candlestick: [
-      CandlestickChartSample(1, (context) => const CandlestickChartSample1()),
-    ]
   };
 }

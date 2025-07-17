@@ -546,7 +546,7 @@ class BarAreaData with EquatableMixin {
     this.applyCutOffY = false,
   }) : color = color ??
             ((color == null && gradient == null)
-                ? Colors.blueGrey.withValues(alpha: 0.5)
+                ? Colors.blueGrey.withAlpha( 0.5)
                 : null);
 
   final bool show;
@@ -602,7 +602,7 @@ class BetweenBarsData with EquatableMixin {
     this.gradient,
   }) : color = color ??
             ((color == null && gradient == null)
-                ? Colors.blueGrey.withValues(alpha: 0.5)
+                ? Colors.blueGrey.withAlpha( 0.5)
                 : null);
 
   /// The index of the lineBarsData from where the area has to be rendered
@@ -1035,7 +1035,10 @@ class LineTouchTooltipData with EquatableMixin {
   /// [LineChart] shows a tooltip popup on top of spots automatically when touch happens,
   /// otherwise you can show it manually using [LineChartData.showingTooltipIndicators].
   /// Tooltip shows on top of rods, with [getTooltipColor] as a background color.
-  /// You can set the corner radius using [tooltipBorderRadius],
+  /// You can set the corner radius using [tooltipRoundedRadius],
+  /// or if you need a custom border, you can use [tooltipBorderRadius].
+  /// Note that if both [tooltipRoundedRadius] and [tooltipBorderRadius] are set,
+  /// the value from [tooltipBorderRadius] will be used.
   /// If you want to have a padding inside the tooltip, fill [tooltipPadding],
   /// or If you want to have a bottom margin, set [tooltipMargin].
   /// Content of the tooltip will provide using [getTooltipItems] callback, you can override it
@@ -1045,6 +1048,7 @@ class LineTouchTooltipData with EquatableMixin {
   /// you can set [fitInsideHorizontally] true to force it to shift inside the chart horizontally,
   /// also you can set [fitInsideVertically] true to force it to shift inside the chart vertically.
   const LineTouchTooltipData({
+    double? tooltipRoundedRadius = 4,
     BorderRadius? tooltipBorderRadius,
     this.tooltipPadding =
         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -1059,14 +1063,23 @@ class LineTouchTooltipData with EquatableMixin {
     this.showOnTopOfTheChartBoxArea = false,
     this.rotateAngle = 0.0,
     this.tooltipBorder = BorderSide.none,
-  }) : _tooltipBorderRadius = tooltipBorderRadius;
+  })  :
+        // TODO(imaNNeo): We should remove this property in the next major version
+        // ignore: deprecated_member_use_from_same_package
+        tooltipRoundedRadius = tooltipRoundedRadius ?? 4,
+        _tooltipBorderRadius = tooltipBorderRadius;
 
   /// Sets a rounded radius for the tooltip.
+  @Deprecated('use tooltipBorderRadius instead')
+  final double tooltipRoundedRadius;
+
   final BorderRadius? _tooltipBorderRadius;
 
   /// Sets a rounded radius for the tooltip.
   BorderRadius get tooltipBorderRadius =>
-      _tooltipBorderRadius ?? BorderRadius.circular(4);
+      // TODO(imaNNeo): We should remove this property in the next major version
+      // ignore: deprecated_member_use_from_same_package
+      _tooltipBorderRadius ?? BorderRadius.circular(tooltipRoundedRadius);
 
   /// Applies a padding for showing contents inside the tooltip.
   final EdgeInsets tooltipPadding;
@@ -1107,6 +1120,9 @@ class LineTouchTooltipData with EquatableMixin {
   /// Used for equality check, see [EquatableMixin].
   @override
   List<Object?> get props => [
+        // TODO(imaNNeo): We should remove this property in the next major version
+        // ignore: deprecated_member_use_from_same_package
+        tooltipRoundedRadius,
         _tooltipBorderRadius,
         tooltipPadding,
         tooltipMargin,
@@ -1291,15 +1307,11 @@ class ShowingTooltipIndicators with EquatableMixin {
 ///
 /// You can override [LineTouchData.touchCallback] to handle touch events,
 /// it gives you a [LineTouchResponse] and you can do whatever you want.
-class LineTouchResponse extends AxisBaseTouchResponse {
+class LineTouchResponse extends BaseTouchResponse {
   /// If touch happens, [LineChart] processes it internally and
   /// passes out a list of [lineBarSpots] it gives you information about the touched spot.
   /// They are sorted based on their distance to the touch event
-  LineTouchResponse({
-    required super.touchLocation,
-    required super.touchChartCoordinate,
-    this.lineBarSpots,
-  });
+  const LineTouchResponse(this.lineBarSpots);
 
   /// touch happened on these spots
   /// (if a single line provided on the chart, [lineBarSpots]'s length will be 1 always)
@@ -1308,14 +1320,10 @@ class LineTouchResponse extends AxisBaseTouchResponse {
   /// Copies current [LineTouchResponse] to a new [LineTouchResponse],
   /// and replaces provided values.
   LineTouchResponse copyWith({
-    Offset? touchLocation,
-    Offset? touchChartCoordinate,
     List<TouchLineBarSpot>? lineBarSpots,
   }) =>
       LineTouchResponse(
-        touchLocation: touchLocation ?? this.touchLocation,
-        touchChartCoordinate: touchChartCoordinate ?? this.touchChartCoordinate,
-        lineBarSpots: lineBarSpots ?? this.lineBarSpots,
+        lineBarSpots ?? this.lineBarSpots,
       );
 }
 
